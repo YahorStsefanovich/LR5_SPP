@@ -8,12 +8,12 @@ namespace DependecyInjectionLibrary
 {
      public class Validator
      {
-          private IEnumerable<Dependency> dependecies;
+          private IEnumerable<Dependency> dependencies;
 
           public bool Validate(Configuration config)
           {
-               dependecies = config.Dependencies;
-               foreach (Dependency dependency in dependecies)
+               dependencies = config.Dependencies;
+               foreach (Dependency dependency in dependencies)
                {
                     bool result = false;
                     if (dependency.pair.Key.IsGenericTypeDefinition &&
@@ -31,6 +31,26 @@ namespace DependecyInjectionLibrary
                }
 
                return true;
+          }
+
+          //получить последнего наследника от типа t
+          private Type GetUpperHeritor(Type t, bool isParent = true)
+          {
+               foreach (Dependency dependency in dependencies)
+               {
+                    if (dependency.pair.Key == t)
+                    {
+                         if (dependency.pair.Value != t)
+                              return GetUpperHeritor(dependency.pair.Value, false);
+                         else
+                              return dependency.pair.Value;
+                    }
+               }
+
+               if (isParent)
+                    return null;
+               else
+                    return t;
           }
      }
 }
