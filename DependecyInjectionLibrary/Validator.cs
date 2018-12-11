@@ -14,21 +14,34 @@ namespace DependecyInjectionLibrary
           public bool Validate(Configuration config)
           {
                dependencies = config.Dependencies;
+               bool result = false;
                foreach (Dependency dependency in dependencies)
                {
-                    bool result = false;
-                    if (dependency.pair.Key.IsGenericTypeDefinition &&
-                         !dependency.pair.Value.IsGenericTypeDefinition)
+                    if ((dependency.pair.Key.IsGenericTypeDefinition &&
+                         !dependency.pair.Value.IsGenericTypeDefinition) ||
+                         (dependency.pair.Key != dependency.pair.Value &&
+                         !dependency.pair.Key.IsAssignableFrom(dependency.pair.Value)) ||
+                         dependency.pair.Value.IsAbstract)
                     {
                          return result;
                     }
+                    else
+                    {
+                         Type createType = GetUpperHeritor(dependency.pair.Value) ?? dependency.pair.Value;
+                         List<Type> notAllowedTypes = new List<Type>();
 
-                    if (dependency.pair.Key != dependency.pair.Value &&
-                         !dependency.pair.Key.IsAssignableFrom(dependency.pair.Value))
-                         return result;
+                         notAllowedTypes.Add(createType);
+                         foreach (ConstructorInfo constructorInfo in createType.GetConstructors())
+                         {
+                              if (result = CheckParameters(constructorInfo, notAllowedTypes))
+                              {
+                                   break;
+                              }
+                         }
 
-                    if (dependency.pair.Value.IsAbstract)
-                         return result;
+                         if (!result)
+                              return false;
+                    }
                }
 
                return true;
@@ -54,6 +67,7 @@ namespace DependecyInjectionLibrary
                     return t;
           }
 
+          //проверить рекурсивно все типы всех параметров всех конструкторов на возможность создания
           private bool CheckParameters(ConstructorInfo constructor, List<Type> notAllowedTypes)
           {
                foreach (ParameterInfo param in constructor.GetParameters())
