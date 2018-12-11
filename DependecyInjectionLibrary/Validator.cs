@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -51,6 +52,51 @@ namespace DependecyInjectionLibrary
                     return null;
                else
                     return t;
+          }
+
+          private bool CheckParameters(ConstructorInfo constructor, List<Type> notAllowedTypes)
+          {
+               foreach (ParameterInfo param in constructor.GetParameters())
+               {
+                    bool result = false;
+                    List<Type> types;
+                    Type t = GetUpperHeritor(param.ParameterType);
+                    Type[] genericArgs = null;
+
+                    if (t == null && param.ParameterType.IsGenericType)
+                    {
+                         genericArgs = param.ParameterType.GenericTypeArguments;
+                         t = GetUpperHeritor(param.ParameterType.GetGenericTypeDefinition());
+                    }
+
+                    if (t == null || notAllowedTypes.Contains(t))
+                         return false;
+
+                    if (t.IsGenericTypeDefinition)
+                    {
+                         try
+                         {
+                              t = t.MakeGenericType(genericArgs);
+                         }
+                         catch
+                         {
+                              throw new InvalidOperationException();
+                         }
+                    }
+
+                    foreach (ConstructorInfo constructorInfo in t.GetConstructors())
+                    {
+                         types = new List<Type>(notAllowedTypes);
+                         types.Add(t);
+                         if (result = CheckParameters(constructorInfo, types))
+                              break;
+                    }
+
+                    if (!result)
+                         return false;
+               }
+
+               return true;
           }
      }
 }
