@@ -17,19 +17,8 @@ namespace DependecyInjectionLibrary
                dependencies = config.Dependencies;
                bool result = false;
 
-               foreach (Dependency dependency in dependencies)
-               {
-                    if (dependency.pair.Key.IsGenericTypeDefinition)
-                    {
-                         if (!dependency.pair.Value.IsGenericTypeDefinition)
-                              return false;
-                    }
-                    else if (dependency.pair.Key != dependency.pair.Value && !dependency.pair.Key.IsAssignableFrom(dependency.pair.Value))
-                         return false;
-
-                    if (dependency.pair.Value.IsAbstract)
-                         return false;
-               }
+               if (!CheckPairs())
+                    return false;
 
                foreach (Dependency dependency in dependencies)
                {
@@ -46,6 +35,29 @@ namespace DependecyInjectionLibrary
                     }
 
                     if (!result)
+                         return false;
+               }
+
+               return true;
+          }
+
+          private bool CheckPairs()
+          {
+               foreach (Dependency dependency in dependencies)
+               {
+                    //если key - gtd, то value тоже д. б. gtd
+                    if (dependency.pair.Key.IsGenericTypeDefinition)
+                    {
+                         if (!dependency.pair.Value.IsGenericTypeDefinition)
+                              return false;
+                    }
+                    else
+                    //если value не неаследник value
+                    if (dependency.pair.Key != dependency.pair.Value &&
+                         !dependency.pair.Key.IsAssignableFrom(dependency.pair.Value))
+                         return false;
+
+                    if (dependency.pair.Value.IsAbstract)
                          return false;
                }
 
