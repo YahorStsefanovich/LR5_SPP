@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace DependecyInjectionLibrary
 {
+
      public class Validator
      {
           private IEnumerable<Dependency> dependencies;
@@ -98,7 +99,7 @@ namespace DependecyInjectionLibrary
                          }
                          catch
                          {
-                              throw new InvalidOperationException();
+                              throw new InvalidCastException();
                          }
                     }
 

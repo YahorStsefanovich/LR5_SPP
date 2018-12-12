@@ -52,7 +52,7 @@ namespace DependecyInjectionLibrary
                                              .MakeGenericType(typeof(T).GenericTypeArguments);
                                         result = (T)Generate(generic,
                                              new Dependency(new KeyValuePair<Type, Type>(typeof(T), dependency.pair.Value.MakeGenericType(typeof(T).GenericTypeArguments)),
-                                             dependency.IsSingleton));
+                                             dependency.Pattern));
                                    }
                                    catch
                                    {
@@ -98,7 +98,7 @@ namespace DependecyInjectionLibrary
                                                   new KeyValuePair<Type, Type>(
                                                        typeof(T), dependency.pair.Value.MakeGenericType(
                                                             typeof(T).GenericTypeArguments)),
-                                                       dependency.IsSingleton
+                                                       dependency.Pattern
 
                                              )));
                                    }
@@ -118,7 +118,7 @@ namespace DependecyInjectionLibrary
           private object Generate(Type type, Dependency dependency)
           {
                object result;
-               if (!dependency.IsSingleton)
+               if (dependency.Pattern != Patterns.SINGLTON)
                {
                     result = Create(type);
                }

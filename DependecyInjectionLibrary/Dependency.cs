@@ -6,19 +6,27 @@ using System.Threading.Tasks;
 
 namespace DependecyInjectionLibrary
 {
-    public class Dependency
+     public enum Patterns
+     {
+          USUAL = 0,
+          SINGLTON
+     };
+
+     public class Dependency
     {
           public KeyValuePair<Type, Type> pair;
-          private bool isSingleton;
-          public bool IsSingleton {
-               get { return isSingleton; }
-               set { isSingleton = value; }
+          private Patterns pattern;
+
+          public Patterns Pattern
+          {
+               get { return pattern; }
+               set { pattern = value; }
           }
 
-          public Dependency(KeyValuePair<Type, Type> pair, bool isSinglton)
+          public Dependency(KeyValuePair<Type, Type> pair, Patterns pattern)
           {
                this.pair = pair;
-               IsSingleton = isSinglton;
+               Pattern = pattern;
           }
     }
 }

@@ -48,8 +48,8 @@ namespace Tests
           [TestMethod]
           public void CheckValidation()
           {
-               config.RegistrateGeneric(typeof(IGeneric1<>), typeof(Generic1<>), false);
-               config.RegistrateGeneric(typeof(IGeneric2<>), typeof(Generic2<>), false);
+               config.RegistrateGeneric(typeof(IGeneric1<>), typeof(Generic1<>), Patterns.USUAL);
+               config.RegistrateGeneric(typeof(IGeneric2<>), typeof(Generic2<>), Patterns.USUAL);
                generator = new DepecndencyGenerator(config);
                Assert.IsNotNull(generator.Resolve<IGeneric1<int>>());
           }
@@ -57,9 +57,9 @@ namespace Tests
           [TestMethod]
           public void CheckAmountOfCretedObjects()
           {
-               config.Registrate<A, B1>(false);
-               config.Registrate<A, B2>(false);
-               config.Registrate<C, D>(false);
+               config.Registrate<A, B1>(Patterns.USUAL);
+               config.Registrate<A, B2>(Patterns.USUAL);
+               config.Registrate<C, D>(Patterns.USUAL);
                generator = new DepecndencyGenerator(config);
                Assert.AreEqual(2, ((List<A>)generator.ResolveAll<A>()).Count);
           }
@@ -67,9 +67,9 @@ namespace Tests
           [TestMethod]
           public void CheckTypeOfCreatedInstance()
           {
-               config.Registrate<I, A>(false);
-               config.Registrate<A, B2>(false);
-               config.Registrate<B2, G>(false);
+               config.Registrate<I, A>(Patterns.USUAL);
+               config.Registrate<A, B2>(Patterns.USUAL);
+               config.Registrate<B2, G>(Patterns.USUAL);
                generator = new DepecndencyGenerator(config);
                Assert.IsTrue(generator.Resolve<I>() is G);
           }
@@ -77,7 +77,7 @@ namespace Tests
           [TestMethod]
           public void CheckCaseParentEqualSon()
           {
-               config.Registrate<A, A>(false);
+               config.Registrate<A, A>(Patterns.USUAL);
                generator = new DepecndencyGenerator(config);
                Assert.IsNotNull(generator.Resolve<A>());
           }
@@ -85,7 +85,7 @@ namespace Tests
           [TestMethod]
           public void CheckInvalidGenericCreation()
           {
-               config.RegistrateGeneric(typeof(IGeneric1<>), typeof(Generic3<>), false);
+               config.RegistrateGeneric(typeof(IGeneric1<>), typeof(Generic3<>), Patterns.USUAL);
                generator = new DepecndencyGenerator(config);
                Assert.IsNull(generator.Resolve<IGeneric2<string>>());
           }
@@ -93,7 +93,7 @@ namespace Tests
           [TestMethod]
           public void CheckValidGenericCreation()
           {
-               config.RegistrateGeneric(typeof(IGeneric2<>), typeof(Generic3<>), false);
+               config.RegistrateGeneric(typeof(IGeneric2<>), typeof(Generic3<>), Patterns.USUAL);
                generator = new DepecndencyGenerator(config);
                Assert.IsNotNull(generator.Resolve<IGeneric2<int>>());
           }
@@ -102,9 +102,9 @@ namespace Tests
           public void CheckSinglton()
           {
                I value1, value2;
-               config.Registrate<I, A>(true);
-               config.Registrate<A, B2>(false);
-               config.Registrate<B2, G>(false);
+               config.Registrate<I, A>(Patterns.SINGLTON);
+               config.Registrate<A, B2>(Patterns.USUAL);
+               config.Registrate<B2, G>(Patterns.USUAL);
 
                generator = new DepecndencyGenerator(config);
 
@@ -118,8 +118,8 @@ namespace Tests
           public void CheckGenericSinglton()
           {
                IGeneric1<int> iGeneric1, iGeneric2;
-               config.RegistrateGeneric(typeof(IGeneric1<>), typeof(Generic1<>), true);
-               config.RegistrateGeneric(typeof(IGeneric2<>), typeof(Generic2<>), true);
+               config.RegistrateGeneric(typeof(IGeneric1<>), typeof(Generic1<>), Patterns.SINGLTON);
+               config.RegistrateGeneric(typeof(IGeneric2<>), typeof(Generic2<>), Patterns.SINGLTON);
                generator = new DepecndencyGenerator(config);
 
                iGeneric1 = generator.Resolve<IGeneric1<int>>();
