@@ -27,13 +27,13 @@ namespace DependecyInjectionLibrary
                     }
                     else
                     {
-                         Type createType = GetUpperHeritor(dependency.pair.Value) ?? dependency.pair.Value;
+                         Type createType = GetUpperHeritor(dependencies, dependency.pair.Value) ?? dependency.pair.Value;
                          List<Type> notAllowedTypes = new List<Type>();
 
                          notAllowedTypes.Add(createType);
                          foreach (ConstructorInfo constructorInfo in createType.GetConstructors())
                          {
-                              if (result = CheckParameters(constructorInfo, notAllowedTypes))
+                              if (result = CheckParameters(dependencies, constructorInfo, notAllowedTypes))
                               {
                                    break;
                               }
@@ -48,14 +48,14 @@ namespace DependecyInjectionLibrary
           }
 
           //получить последнего наследника от типа t
-          private Type GetUpperHeritor(Type t, bool isParent = true)
+          public static Type GetUpperHeritor(IEnumerable<Dependency> dependencies, Type t, bool isParent = true)
           {
                foreach (Dependency dependency in dependencies)
                {
                     if (dependency.pair.Key == t)
                     {
                          if (dependency.pair.Value != t)
-                              return GetUpperHeritor(dependency.pair.Value, false);
+                              return GetUpperHeritor(dependencies, dependency.pair.Value, false);
                          else
                               return dependency.pair.Value;
                     }
@@ -68,19 +68,19 @@ namespace DependecyInjectionLibrary
           }
 
           //проверить рекурсивно все типы всех параметров всех конструкторов на возможность создания
-          private bool CheckParameters(ConstructorInfo constructor, List<Type> notAllowedTypes)
+          private bool CheckParameters(IEnumerable<Dependency> dependencies, ConstructorInfo constructor, List<Type> notAllowedTypes)
           {
                foreach (ParameterInfo param in constructor.GetParameters())
                {
                     bool result = false;
                     List<Type> types;
-                    Type t = GetUpperHeritor(param.ParameterType);
+                    Type t = GetUpperHeritor(dependencies, param.ParameterType);
                     Type[] genericArgs = null;
 
                     if (t == null && param.ParameterType.IsGenericType)
                     {
                          genericArgs = param.ParameterType.GenericTypeArguments;
-                         t = GetUpperHeritor(param.ParameterType.GetGenericTypeDefinition());
+                         t = GetUpperHeritor(dependencies, param.ParameterType.GetGenericTypeDefinition());
                     }
 
                     if (t == null || notAllowedTypes.Contains(t))
@@ -102,7 +102,7 @@ namespace DependecyInjectionLibrary
                     {
                          types = new List<Type>(notAllowedTypes);
                          types.Add(t);
-                         if (result = CheckParameters(constructorInfo, types))
+                         if (result = CheckParameters(dependencies, constructorInfo, types))
                               break;
                     }
 
