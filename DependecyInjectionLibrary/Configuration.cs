@@ -27,7 +27,7 @@ namespace DependecyInjectionLibrary
 
           public void RegistrateGeneric(Type t1, Type t2, bool isSinglton)
           {
-               if ((t1.IsClass || t1.IsInterface) && (t1.IsClass || t2.IsInterface))
+               if ((t1.IsClass || t1.IsInterface) && (t2.IsClass || t2.IsInterface))
                {
                     Dependency dependecy = new Dependency(new KeyValuePair<Type, Type>(t1, t2), isSinglton);
                     if (!Dependencies.Exists(x => x.pair.Key == dependecy.pair.Key && x.pair.Value == dependecy.pair.Value))

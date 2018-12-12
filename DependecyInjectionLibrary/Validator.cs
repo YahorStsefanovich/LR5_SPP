@@ -15,33 +15,37 @@ namespace DependecyInjectionLibrary
           {
                dependencies = config.Dependencies;
                bool result = false;
+
                foreach (Dependency dependency in dependencies)
                {
-                    if ((dependency.pair.Key.IsGenericTypeDefinition &&
-                         !dependency.pair.Value.IsGenericTypeDefinition) ||
-                         (dependency.pair.Key != dependency.pair.Value &&
-                         !dependency.pair.Key.IsAssignableFrom(dependency.pair.Value)) ||
-                         dependency.pair.Value.IsAbstract)
+                    if (dependency.pair.Key.IsGenericTypeDefinition)
                     {
-                         return result;
-                    }
-                    else
-                    {
-                         Type createType = GetUpperHeritor(dependencies, dependency.pair.Value) ?? dependency.pair.Value;
-                         List<Type> notAllowedTypes = new List<Type>();
-
-                         notAllowedTypes.Add(createType);
-                         foreach (ConstructorInfo constructorInfo in createType.GetConstructors())
-                         {
-                              if (result = CheckParameters(dependencies, constructorInfo, notAllowedTypes))
-                              {
-                                   break;
-                              }
-                         }
-
-                         if (!result)
+                         if (!dependency.pair.Value.IsGenericTypeDefinition)
                               return false;
                     }
+                    else if (dependency.pair.Key != dependency.pair.Value && !dependency.pair.Key.IsAssignableFrom(dependency.pair.Value))
+                         return false;
+
+                    if (dependency.pair.Value.IsAbstract)
+                         return false;
+               }
+
+               foreach (Dependency dependency in dependencies)
+               {
+                    Type createType = GetUpperHeritor(dependencies, dependency.pair.Value) ?? dependency.pair.Value;
+                    List<Type> notAllowedTypes = new List<Type>();
+
+                    notAllowedTypes.Add(createType);
+                    foreach (ConstructorInfo constructorInfo in createType.GetConstructors())
+                    {
+                         if (result = CheckParameters(dependencies, constructorInfo, notAllowedTypes))
+                         {
+                              break;
+                         }
+                    }
+
+                    if (!result)
+                         return false;
                }
 
                return true;
