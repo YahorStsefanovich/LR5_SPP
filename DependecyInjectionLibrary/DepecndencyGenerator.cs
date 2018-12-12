@@ -66,6 +66,55 @@ namespace DependecyInjectionLibrary
                return result;
           }
 
+          public IEnumerable<T> ResolveAll<T>()
+               where T : class
+          {
+               List<T> result = null;
+               if (!typeof(T).IsGenericTypeDefinition)
+               {
+                    result = new List<T>();
+                    foreach (Dependency dependency in dependecies)
+                    {
+                         if (dependency.pair.Key == typeof(T))
+                         {
+                              result.Add((T)Generate(Validator.GetUpperHeritor(this.dependecies, dependency.pair.Value)
+                                   ?? dependency.pair.Value, dependency));
+                         }
+                    }
+
+                    if (typeof(T).IsGenericType)
+                    {
+                         foreach(Dependency dependency in dependecies)
+                         {
+                              if (dependency.pair.Key == typeof(T).GetGenericTypeDefinition())
+                              {
+                                   try
+                                   {
+                                        Type generic = (Validator.GetUpperHeritor(this.dependecies, dependency.pair.Value) ?? dependency.pair.Value)
+                                             .MakeGenericType(typeof(T).GenericTypeArguments);
+
+                                        result.Add((T)Generate(generic, 
+                                             new Dependency(
+                                                  new KeyValuePair<Type, Type>(
+                                                       typeof(T), dependency.pair.Value.MakeGenericType(
+                                                            typeof(T).GenericTypeArguments)),
+                                                       dependency.isSingleton
+                                                       
+                                             )));
+                                   }
+                                   catch
+                                   {
+                                        throw new InvalidCastException();
+                                   }
+                              }
+                         }
+                    }
+               }
+
+               return result;
+
+          }
+
           private object Generate(Type type, Dependency dependency)
           {
                object result;
