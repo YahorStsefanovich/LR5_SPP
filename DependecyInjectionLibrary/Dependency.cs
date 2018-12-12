@@ -9,12 +9,16 @@ namespace DependecyInjectionLibrary
     public class Dependency
     {
           public KeyValuePair<Type, Type> pair;
-          public bool isSingleton;
+          private bool isSingleton;
+          public bool IsSingleton {
+               get { return isSingleton; }
+               set { isSingleton = value; }
+          }
 
           public Dependency(KeyValuePair<Type, Type> pair, bool isSinglton)
           {
                this.pair = pair;
-               this.isSingleton = isSingleton;
+               IsSingleton = isSinglton;
           }
     }
 }

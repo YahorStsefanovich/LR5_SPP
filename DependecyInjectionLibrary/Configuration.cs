@@ -21,7 +21,7 @@ namespace DependecyInjectionLibrary
                where T2 : class
           {
                Dependency dependency = new Dependency(new KeyValuePair<Type, Type>(typeof(T1), typeof(T2)), isSinglton);
-               if (Dependencies.Exists(x => x.pair.Key == dependency.pair.Key && x.pair.Value == dependency.pair.Value))
+               if (!Dependencies.Exists(x => x.pair.Key == dependency.pair.Key && x.pair.Value == dependency.pair.Value))
                     Dependencies.Add(dependency);
           }
 
