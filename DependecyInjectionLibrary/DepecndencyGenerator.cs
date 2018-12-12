@@ -52,10 +52,20 @@ namespace DependecyInjectionLibrary
                {
                     result = Create(type);
                }
-               else if (dependency.isSingleton)
+               else 
                {    
-
+                    if (singltonList.Keys.ToList().Exists(x => x.Key == dependency.pair.Key && x.Value == dependency.pair.Value))
+                    {
+                         singltonList.TryGetValue(dependency.pair, out result);
+                    }
+                    else
+                    {
+                         result = Create(type);
+                         singltonList.Add(dependency.pair, result);
+                    }
                }
+
+               return result;
           }
 
           private object Create(Type type)
