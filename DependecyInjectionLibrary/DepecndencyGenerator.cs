@@ -153,10 +153,63 @@ namespace DependecyInjectionLibrary
                return result;
           }
 
-          private object InvokeConstructor(ConstructorInfo constructorInfo, List<Type> notAllowedTypes)
+          private object InvokeConstructor(ConstructorInfo constructor, List<Type> notAllowedTypes)
           {
                object result = null;
-               return result; 
+
+               ParameterInfo[] parametersInfo = constructor.GetParameters();
+               object[] validParameters = new object[parametersInfo.Length];
+
+               int item = 0;
+
+               foreach (ParameterInfo parameterInfo in parametersInfo)
+               {
+                    List<Type> list;
+                    Type type = Validator.GetUpperHeritor(dependecies, parameterInfo.ParameterType);
+                    Type[] genericArgs = null;
+
+                    if (type == null && parameterInfo.ParameterType.IsGenericType)
+                    {
+                         genericArgs = parameterInfo.ParameterType.GenericTypeArguments;
+                         type = Validator.GetUpperHeritor(this.dependecies, parameterInfo.ParameterType.GetGenericTypeDefinition());
+                    }
+
+                    if (type == null || notAllowedTypes.Contains(type))
+                    {
+                         return null;
+                    }
+
+                    if (type.IsGenericTypeDefinition)
+                    {
+                         try
+                         {
+                              type = type.MakeGenericType(genericArgs);
+                         }
+                         catch
+                         {
+                              throw new InvalidCastException();
+                         }
+                    }
+
+                    foreach (ConstructorInfo constructorInfo in type.GetConstructors())
+                    {
+                         list = new List<Type>(notAllowedTypes);
+                         list.Add(type);
+
+                         if ((result = InvokeConstructor(constructorInfo, list)) != null)
+                         {
+                              break;
+                         }
+
+                    }
+
+                    if (result == null)
+                         return null;
+
+                    validParameters[item++] = result;
+               }
+
+               return constructor.Invoke(validParameters); 
           }
      }
 }
