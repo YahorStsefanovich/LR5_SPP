@@ -28,21 +28,42 @@ namespace DependecyInjectionLibrary
           public T Resolve<T>()
                where T : class
           {
-
+               T result = null;
                if (!typeof(T).IsGenericTypeDefinition)
                {
                     foreach  (Dependency dependency in dependecies)
                     {
                          if (dependency.pair.Key == typeof(T))
                          {
-                              return null;
+                              return (T)Generate(Validator.GetUpperHeritor(dependecies, dependency.pair.Value) ??
+                                   dependency.pair.Value, dependency);
+                         }
+                    }
+
+                    if (typeof(T).IsGenericType)
+                    {
+                         foreach (Dependency dependency in dependecies)
+                         {
+                              if (dependency.pair.Key == typeof(T).GetGenericTypeDefinition())
+                              {
+                                   try
+                                   {
+                                        Type generic = (Validator.GetUpperHeritor(dependecies, dependency.pair.Value) ?? dependency.pair.Value)
+                                             .MakeGenericType(typeof(T).GenericTypeArguments);
+                                        result = (T)Generate(generic,
+                                             new Dependency(new KeyValuePair<Type, Type>(typeof(T), dependency.pair.Value.MakeGenericType(typeof(T).GenericTypeArguments)),
+                                             dependency.isSingleton));
+                                   }
+                                   catch
+                                   {
+                                        throw new InvalidCastException();
+                                   }
+                              }
                          }
                     }
                }
-               else
-               {
-                    return null;
-               }
+
+               return result;
           }
 
           private object Generate(Type type, Dependency dependency)
@@ -85,7 +106,8 @@ namespace DependecyInjectionLibrary
 
           private object InvokeConstructor(ConstructorInfo constructorInfo, List<Type> notAllowedTypes)
           {
-               throw new NotImplementedException();
+               object result = null;
+               return result; 
           }
      }
 }
